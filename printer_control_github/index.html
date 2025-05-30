@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Diário de Impressoras PP-MS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="header">
+        <div class="header-title">
+            <i class="fas fa-print printer-icon"></i>
+            <span>Controle Diário de Impressoras PP-MS</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline" id="exportButton">
+                <i class="fas fa-download"></i> Exportar CSV
+            </button>
+            <button class="btn btn-primary" id="addPrinterButton">
+                <i class="fas fa-plus"></i> Nova Impressora
+            </button>
+        </div>
+    </header>
+
+    <!-- Navegação por abas -->
+    <nav class="nav-tabs">
+        <a href="#dashboard" class="nav-tab active" data-tab="dashboard">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+        <a href="#regional" class="nav-tab" data-tab="regional">
+            <i class="fas fa-map-marker-alt"></i> Por Regional
+        </a>
+        <a href="#all-regionals" class="nav-tab" data-tab="all-regionals">
+            <i class="fas fa-list"></i> Todas as Regionais
+        </a>
+        <a href="#detailed-table" class="nav-tab" data-tab="detailed-table">
+            <i class="fas fa-table"></i> Tabela Detalhada
+        </a>
+        <a href="#admin" class="nav-tab" data-tab="admin">
+            <i class="fas fa-cog"></i> Gerenciar Regionais
+        </a>
+    </nav>
+
+    <!-- Conteúdo das abas -->
+    <div class="tab-content">
+        <!-- Dashboard -->
+        <div id="dashboard" class="tab-pane active">
+            <div class="container">
+                <!-- Filtros -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="regional-filter">Regional:</label>
+                        <select id="regional-filter">
+                            <option value="Todos">Todas</option>
+                            <!-- Opções serão preenchidas via JavaScript -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="departamento-filter">Departamento:</label>
+                        <select id="departamento-filter">
+                            <option value="Todos">Todos</option>
+                            <!-- Opções serão preenchidas via JavaScript -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Resumo Geral -->
+                <div class="section-title">
+                    <i class="fas fa-print icon"></i>
+                    <span>Resumo Geral - Todas as Regionais</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <span>Total de Impressoras</span>
+                            <i class="fas fa-print"></i>
+                        </div>
+                        <div class="stat-value" id="total-impressoras">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <span>Impressões do Dia</span>
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-value" id="total-impressoes">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <span>Chamados Abertos</span>
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value" id="chamados-abertos">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <span>Total de Toners</span>
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="stat-value" id="total-toners">0</div>
+                    </div>
+                </div>
+
+                <!-- Resumo por Regional -->
+                <div class="section-title">
+                    <i class="fas fa-map-marker-alt icon"></i>
+                    <span>Resumo por Regional</span>
+                </div>
+
+                <div class="regional-grid" id="regional-cards">
+                    <!-- Cards de regionais serão preenchidos via JavaScript -->
+                </div>
+
+                <!-- Tabela de Impressoras -->
+                <div class="section-title">
+                    <i class="fas fa-table icon"></i>
+                    <span>Impressoras Cadastradas</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Regional</th>
+                                <th>Departamento</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Nº Série</th>
+                                <th>Status</th>
+                                <th>Chamado</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="printers-table-body">
+                            <!-- Linhas da tabela serão preenchidas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Por Regional -->
+        <div id="regional" class="tab-pane">
+            <div class="container">
+                <div class="section-title">
+                    <i class="fas fa-map-marker-alt icon"></i>
+                    <span>Visualização por Regional</span>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="regional-select">Selecione a Regional:</label>
+                        <select id="regional-select">
+                            <!-- Opções serão preenchidas via JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="regional-detail">
+                    <!-- Detalhes da regional selecionada serão preenchidos via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Todas as Regionais -->
+        <div id="all-regionals" class="tab-pane">
+            <div class="container">
+                <div class="section-title">
+                    <i class="fas fa-list icon"></i>
+                    <span>Todas as Regionais</span>
+                </div>
+                
+                <div id="all-regionals-content">
+                    <!-- Conteúdo de todas as regionais será preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Detalhada -->
+        <div id="detailed-table" class="tab-pane">
+            <div class="container">
+                <div class="section-title">
+                    <i class="fas fa-table icon"></i>
+                    <span>Tabela Detalhada de Impressoras</span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table" id="detailed-table-content">
+                        <thead>
+                            <tr>
+                                <th>Regional</th>
+                                <th>Departamento</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Nº Série</th>
+                                <th>IP</th>
+                                <th>Medidor Anterior</th>
+                                <th>Medidor Atual</th>
+                                <th>Diário</th>
+                                <th>Status</th>
+                                <th>Chamado</th>
+                                <th>ITSM</th>
+                                <th>Defeito</th>
+                                <th>Atendimento</th>
+                                <th>Toners</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailed-table-body">
+                            <!-- Linhas da tabela detalhada serão preenchidas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gerenciar Regionais -->
+        <div id="admin" class="tab-pane">
+            <div class="container">
+                <div class="section-title">
+                    <i class="fas fa-cog icon"></i>
+                    <span>Administração do Sistema</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <span>Gerenciar Regionais</span>
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <p>Adicione, edite ou remova regionais do sistema.</p>
+                        <button class="btn btn-primary" id="manage-regionais-btn">
+                            <i class="fas fa-edit"></i> Gerenciar Regionais
+                        </button>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <span>Gerenciar Departamentos</span>
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <p>Adicione, edite ou remova departamentos do sistema.</p>
+                        <button class="btn btn-primary" id="manage-departamentos-btn">
+                            <i class="fas fa-edit"></i> Gerenciar Departamentos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulário de Regionais (inicialmente oculto) -->
+                <div id="regionais-form" class="admin-form" style="display: none;">
+                    <div class="section-title">
+                        <i class="fas fa-map-marker-alt icon"></i>
+                        <span>Gerenciar Regionais</span>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-title">Adicionar Nova Regional</div>
+                        <form id="add-regional-form">
+                            <div class="form-group">
+                                <label for="nome-regional">Nome da Regional:</label>
+                                <input type="text" id="nome-regional" class="form-control" required placeholder="Ex: SP, RJ, MG">
+                            </div>
+                            <div class="form-group">
+                                <label for="descricao-regional">Descrição:</label>
+                                <input type="text" id="descricao-regional" class="form-control" placeholder="Ex: São Paulo, Rio de Janeiro">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Adicionar Regional
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="section-title" style="margin-top: 30px;">
+                        <i class="fas fa-list icon"></i>
+                        <span>Regionais Cadastradas</span>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regionais-table-body">
+                            <!-- Linhas da tabela serão preenchidas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Formulário de Departamentos (inicialmente oculto) -->
+                <div id="departamentos-form" class="admin-form" style="display: none;">
+                    <div class="section-title">
+                        <i class="fas fa-building icon"></i>
+                        <span>Gerenciar Departamentos</span>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-title">Adicionar Novo Departamento</div>
+                        <form id="add-departamento-form">
+                            <div class="form-group">
+                                <label for="nome-departamento">Nome do Departamento:</label>
+                                <input type="text" id="nome-departamento" class="form-control" required placeholder="Ex: Financeiro, RH, TI">
+                            </div>
+                            <div class="form-group">
+                                <label for="descricao-departamento">Descrição:</label>
+                                <input type="text" id="descricao-departamento" class="form-control" placeholder="Ex: Departamento Financeiro, Recursos Humanos">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Adicionar Departamento
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="section-title" style="margin-top: 30px;">
+                        <i class="fas fa-list icon"></i>
+                        <span>Departamentos Cadastrados</span>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departamentos-table-body">
+                            <!-- Linhas da tabela serão preenchidas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Impressora -->
+    <div id="printer-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="printer-modal-title">Adicionar Nova Impressora</h2>
+            
+            <form id="printer-form">
+                <input type="hidden" id="printer-id">
+                
+                <div class="form-section">
+                    <h3>Informações Básicas</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-regional">Regional:</label>
+                            <select id="printer-regional" required>
+                                <option value="">Selecione uma regional</option>
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-departamento">Departamento:</label>
+                            <select id="printer-departamento" required>
+                                <option value="">Selecione um departamento</option>
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-marca">Marca:</label>
+                            <input type="text" id="printer-marca" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-numero">Nº:</label>
+                            <input type="number" id="printer-numero" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-modelo">Modelo:</label>
+                            <input type="text" id="printer-modelo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-serie">Número de Série:</label>
+                            <input type="text" id="printer-serie" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-ip">IP de acesso:</label>
+                            <input type="text" id="printer-ip" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-toner">Quantidade de Toner:</label>
+                            <input type="number" id="printer-toner" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Contadores</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-medidor-anterior">Medidor anterior:</label>
+                            <input type="number" id="printer-medidor-anterior" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-medidor-atual">Medidor atual:</label>
+                            <input type="number" id="printer-medidor-atual" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-diario">Diário:</label>
+                            <input type="number" id="printer-diario" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Status e Defeitos</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-status">Status da impressora:</label>
+                            <select id="printer-status" required>
+                                <option value="ok">OK</option>
+                                <option value="precária">Precária</option>
+                                <option value="parada">Parada</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-defeito">Descrição do defeito / código do erro:</label>
+                            <input type="text" id="printer-defeito">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Chamados</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-chamado-fornecedor">NÚMERO DO CHAMADO (Fornecedor):</label>
+                            <input type="text" id="printer-chamado-fornecedor">
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-chamado-itsm">Chamado ITSM:</label>
+                            <input type="text" id="printer-chamado-itsm">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-data-chamado">DATA DO CHAMADO:</label>
+                            <input type="date" id="printer-data-chamado">
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-hora-chamado">HORA DO CHAMADO:</label>
+                            <input type="time" id="printer-hora-chamado">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Agendamento e Atendimento</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-data-prevista">Data prevista atendimento:</label>
+                            <input type="date" id="printer-data-prevista">
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-hora-prevista">Hora prevista atendimento:</label>
+                            <input type="time" id="printer-hora-prevista">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-data-atendimento">CHAMADO ATENDIDO DIA:</label>
+                            <input type="date" id="printer-data-atendimento">
+                        </div>
+                        <div class="form-group">
+                            <label for="printer-hora-atendimento">HORA DO ATENDIMENTO:</label>
+                            <input type="time" id="printer-hora-atendimento">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="printer-status-chamado">CHAMADO ENCERRADO DIA / Status Atual:</label>
+                            <input type="text" id="printer-status-chamado">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Impressora
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
